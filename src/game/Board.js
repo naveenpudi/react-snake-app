@@ -23,7 +23,11 @@ class Board extends Component {
     constructor(props) {
         super(props);
 
-        this.state = Object.assign({highScore: 0}, this.init());
+        this.state = Object.assign({
+            highScore: 0,
+            debug: true,
+            played: 0,
+        }, this.init());
         setInterval(this.update.bind(this), 1000 / SPEED);
 
         ArrowKeysReact.config({
@@ -42,7 +46,7 @@ class Board extends Component {
         });
     }
 
-    init(){
+    init() {
         const board = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE).fill(CELL_TYPE.FREE));
         const snake = getFreePos(board);
         board[snake.y][snake.x] = CELL_TYPE.SNAKE;
@@ -54,7 +58,7 @@ class Board extends Component {
             snake: [snake],
             apple: apple,
             dir: Object.values(DIRECTION)[getRandomInt(Object.values(DIRECTION).length)],
-            gameOver: false,
+            gameOver: true,
             score: 0,
         }
     }
@@ -66,6 +70,7 @@ class Board extends Component {
                 score: 0,
                 highScore: highScore,
                 gameOver: true,
+                played: state.played + 1,
             }
         });
     }
@@ -74,7 +79,7 @@ class Board extends Component {
         return (
             <div style={{width: GAME_SIZE + 350, marginLeft: 'auto', marginRight: 'auto'}}>
                 <div style={{width: GAME_SIZE, float: 'left', marginRight: 50}}>
-                    <table className='Board' {...ArrowKeysReact.events} tabIndex="1">
+                    <table id='table-board' className='Board' {...ArrowKeysReact.events} tabIndex="1">
                         <style>{
                             `:root { --game-width: ${GAME_SIZE}; }`
                         }</style>
@@ -97,18 +102,35 @@ class Board extends Component {
                     <h2>Scoreboard</h2>
                     <p>Score: {this.state.score}</p>
                     <p>High score: {this.state.highScore}</p>
-                    <p>Game over: {this.state.gameOver ? 'yes' : 'no'}</p>
-                    <button onClick={this.restart.bind(this)} className='btn btn-primary' disabled={this.state.gameOver ? '' : 'disabled'}>Restart</button>
-                    <h3 style={{marginTop: 25}}>Debug information</h3>
-                    <p>Current direction: {this.state.dir}</p>
-                    <p>Snake <ul style={{maxHeight: 150, overflowY: 'scroll'}}>{this.state.snake.map(pos => React.createElement('li', null, `x: ${pos.x}, y: ${pos.y}`))}</ul></p>
+
+                    <p><button onClick={this.restart.bind(this)} className='btn btn-primary'
+                            disabled={this.state.gameOver ? '' : 'disabled'}>
+                        {!this.state.gameOver ? 'Playing...' : (this.state.played === 0 ? 'Start' : 'Restart')}
+                    </button></p>
+                    <p>Show debug info: <input type="checkbox" data-toggle="toggle" value={this.state.debug}
+                                               onChange={this.toggleCheckbox.bind(this)}/></p>
+
+                    <div style={{display: this.state.debug ? 'none' : 'block'}}>
+                        <h3 style={{marginTop: 25}}>Debug information</h3>
+                        <p>Game over: {this.state.gameOver ? 'yes' : 'no'}</p>
+                        <p>Current direction: {this.state.dir}</p>
+                        <p>Games played: {this.state.played}</p>
+                        <p>Snake:</p>
+                        <ul style={{maxHeight: 150, overflowY: 'scroll'}}>
+                            {this.state.snake.map((pos, i) => React.createElement('li', {key: i}, `x: ${pos.x}, y: ${pos.y}`))}
+                        </ul>
+                    </div>
                 </div>
             </div>
         )
     }
 
+    toggleCheckbox() {
+        this.setState(state => ({debug: !state.debug}));
+    }
+
     update() {
-        if (this.state.gameOver){
+        if (this.state.gameOver) {
             return;
         }
         let x = 0;
@@ -141,7 +163,7 @@ class Board extends Component {
                 return {};
             }
             // check for snake collision
-            if (state.snake.find(pos => pos.x === new_pos.x && pos.y === new_pos.y)){
+            if (state.snake.find(pos => pos.x === new_pos.x && pos.y === new_pos.y)) {
                 this.onGameOver();
                 return {};
             }
@@ -169,7 +191,12 @@ class Board extends Component {
     }
 
     restart() {
-        this.setState(this.init());
+        if (this.state.played === 0){
+            this.setState({gameOver: false});
+        } else {
+            this.setState(Object.assign(this.init(), {gameOver: false}));
+        }
+        document.getElementById('table-board').focus();
     }
 }
 

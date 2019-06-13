@@ -9,8 +9,7 @@ class App extends Component {
             <div className="App">
                 <div className="App-header">
                     <h1>Snake</h1>
-                    <p>First click on the field to gain focus. Then, use the arrow keys to control
-                        the direction of the snake.</p>
+                    <p>Click the button to start. Use the arrow keys to control the direction of the snake.</p>
                 </div>
                 <Board/>
             </div>
