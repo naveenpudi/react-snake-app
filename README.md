@@ -1,6 +1,9 @@
 # react-snake-app
 A simple react application for the Snake game
 
+## Demo
+I've deployed this game on Heroku. Use [this link](https://react-snake-app.herokuapp.com/) to play the game.
+
 ## Available Scripts
 
 In the project directory, you can run:
