@@ -23,28 +23,31 @@ class Board extends Component {
     constructor(props) {
         super(props);
 
-        this.state = Object.assign({
-            highScore: 0,
-            debug: true,
-            played: 0,
-        }, this.init());
-        setInterval(this.update.bind(this), 1000 / SPEED);
+        this.state = {
+            ...{
+                highScore: 0,
+                debug: true,
+                played: 0,
+            }, ...this.init()
+        };
+        setInterval(this.update, 1000 / SPEED);
 
         ArrowKeysReact.config({
-            left: () => {
-                if (this.state.dir !== DIRECTION.RIGHT) this.setState({dir: DIRECTION.LEFT});
-            },
-            right: () => {
-                if (this.state.dir !== DIRECTION.LEFT) this.setState({dir: DIRECTION.RIGHT});
-            },
-            up: () => {
-                if (this.state.dir !== DIRECTION.DOWN) this.setState({dir: DIRECTION.UP});
-            },
-            down: () => {
-                if (this.state.dir !== DIRECTION.UP) this.setState({dir: DIRECTION.DOWN});
-            },
+            left: () => this.checkUpdateDir(DIRECTION.LEFT, DIRECTION.RIGHT),
+            right: () => this.checkUpdateDir(DIRECTION.RIGHT, DIRECTION.LEFT),
+            up: () => this.checkUpdateDir(DIRECTION.UP, DIRECTION.DOWN),
+            down: () => this.checkUpdateDir(DIRECTION.DOWN, DIRECTION.UP),
         });
     }
+
+    checkUpdateDir = (dir, oppositeDir) => {
+        if (this.state.dir !== oppositeDir && !this.state.changedDirection) {
+            this.setState({
+                changedDirection: true,
+                dir: dir,
+            });
+        }
+    };
 
     init() {
         const board = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE).fill(CELL_TYPE.FREE));
@@ -60,10 +63,11 @@ class Board extends Component {
             dir: Object.values(DIRECTION)[getRandomInt(Object.values(DIRECTION).length)],
             gameOver: true,
             score: 0,
+            changedDirection: false,
         }
     }
 
-    onGameOver() {
+    onGameOver = () => {
         this.setState(state => {
             const highScore = Math.max(state.highScore, state.score);
             return {
@@ -73,7 +77,7 @@ class Board extends Component {
                 played: state.played + 1,
             }
         });
-    }
+    };
 
     render() {
         return (
@@ -103,12 +107,14 @@ class Board extends Component {
                     <p>Score: {this.state.score}</p>
                     <p>High score: {this.state.highScore}</p>
 
-                    <p><button onClick={this.restart.bind(this)} className='btn btn-primary'
-                            disabled={this.state.gameOver ? '' : 'disabled'}>
-                        {!this.state.gameOver ? 'Playing...' : (this.state.played === 0 ? 'Start' : 'Restart')}
-                    </button></p>
+                    <p>
+                        <button onClick={this.restart} className='btn btn-primary'
+                                disabled={this.state.gameOver ? '' : 'disabled'}>
+                            {!this.state.gameOver ? 'Playing...' : (this.state.played === 0 ? 'Start' : 'Restart')}
+                        </button>
+                    </p>
                     <p>Show debug info: <input type="checkbox" data-toggle="toggle" value={this.state.debug}
-                                               onChange={this.toggleCheckbox.bind(this)}/></p>
+                                               onChange={this.toggleCheckbox}/></p>
 
                     <div style={{display: this.state.debug ? 'none' : 'block'}}>
                         <h3 style={{marginTop: 25}}>Debug information</h3>
@@ -125,11 +131,11 @@ class Board extends Component {
         )
     }
 
-    toggleCheckbox() {
+    toggleCheckbox = () => {
         this.setState(state => ({debug: !state.debug}));
     }
 
-    update() {
+    update = () => {
         if (this.state.gameOver) {
             return;
         }
@@ -186,12 +192,13 @@ class Board extends Component {
                 snake: state.snake,
                 apple: state.apple,
                 score: state.score,
+                changedDirection: false,
             };
         });
-    }
+    };
 
-    restart() {
-        if (this.state.played === 0){
+    restart = () => {
+        if (this.state.played === 0) {
             this.setState({gameOver: false});
         } else {
             this.setState(Object.assign(this.init(), {gameOver: false}));
