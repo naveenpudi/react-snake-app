@@ -101,7 +101,7 @@ class Board extends Component {
                     <button onClick={this.restart.bind(this)} className='btn btn-primary' disabled={this.state.gameOver ? '' : 'disabled'}>Restart</button>
                     <h3 style={{marginTop: 25}}>Debug information</h3>
                     <p>Current direction: {this.state.dir}</p>
-                    <p>Snake <ul>{this.state.snake.map(pos => React.createElement('li', null, `x: ${pos.x}, y: ${pos.y}`))}</ul></p>
+                    <p>Snake <ul style={{maxHeight: 150, overflowY: 'scroll'}}>{this.state.snake.map(pos => React.createElement('li', null, `x: ${pos.x}, y: ${pos.y}`))}</ul></p>
                 </div>
             </div>
         )
@@ -137,6 +137,11 @@ class Board extends Component {
             new_pos.y += y;
             // Check for boundary collision
             if (new_pos.x < 0 || new_pos.x >= BOARD_SIZE || new_pos.y < 0 || new_pos.y >= BOARD_SIZE) {
+                this.onGameOver();
+                return {};
+            }
+            // check for snake collision
+            if (state.snake.find(pos => pos.x === new_pos.x && pos.y === new_pos.y)){
                 this.onGameOver();
                 return {};
             }
