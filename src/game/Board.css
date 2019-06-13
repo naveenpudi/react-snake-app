@@ -1,0 +1,15 @@
+:root {
+    --game-width: 0px;
+}
+
+.Board {
+    height: var(--game-width);
+    width: var(--game-width);
+    border: 2px solid #282c34;
+    padding: 0;
+}
+
+tr {
+    margin: 0;
+    padding: 0;
+}
