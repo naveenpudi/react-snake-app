@@ -11,6 +11,10 @@ I've deployed this game on Heroku. Use [this link](https://react-snake-app.herok
 
 In the project directory, you can run:
 
+### `npm install`
+
+Installs the required packages.
+
 ### `npm start`
 
 Runs the app in the development mode.<br>

@@ -179,6 +179,7 @@ class Board extends Component {
                 state.apple = getFreePos(state.board);
                 state.board[state.apple.y][state.apple.x] = CELL_TYPE.APPLE;
                 state.score += 10;
+                state.highScore = Math.max(state.score, state.highScore);
             } else {
                 // remove first element of snake
                 const free_pos = state.snake.splice(0, 1)[0];
