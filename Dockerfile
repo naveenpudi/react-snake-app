@@ -1,23 +1,13 @@
-# Use Node.js 20
-FROM node:20
- 
-# Set working directory
+# Step 1: Build React app
+FROM node:18-alpine AS build
 WORKDIR /app
- 
-# Copy package.json and package-lock.json first (better layer caching)
 COPY package*.json ./
- 
-# Install dependencies
 RUN npm install
- 
-# Copy the rest of the project files
 COPY . .
- 
-# Expose the port React dev server runs on
-EXPOSE 3000
- 
-# Fix for Node.js 17+ (OpenSSL 3) with older webpack/react-scripts
-ENV NODE_OPTIONS=--openssl-legacy-provider
- 
-# Default command -> run the development server
-CMD ["npm", "start"]
+RUN npm run build   # build production files into /app/build
+
+# Step 2: Serve with Nginx
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
